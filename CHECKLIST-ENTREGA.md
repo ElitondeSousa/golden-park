@@ -21,11 +21,10 @@ Prazo: **14/11/2026, 12h (Brasília)**. Itens marcados apenas quando verificados
 | ☑ | Instalação limpa validada | Clone novo e banco novo, seguindo só a documentação. *Mesma máquina Windows; Linux e macOS não testados.* |
 | ☑ | Ausência de credenciais expostas | `.env` nunca foi versionado (histórico conferido). O token e o banco do exemplo são valores locais de demonstração. |
 | ☑ | Roteiro de demonstração pronto | [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md) (3 a 5 min), só com funções implementadas |
-| ☐ | Repositório acessível aos avaliadores | O repositório é **público** (conferido), mas os documentos desta etapa **ainda precisam ser enviados (push)** com a aprovação da equipe |
+| ☑ | Repositório acessível aos avaliadores | Repositório **público** no GitHub (conferido) com todos os documentos desta etapa enviados (commit `169a689`) |
 
 ## Ações da equipe
 
-1. Aprovar e enviar (push) os documentos desta etapa.
-2. Abrir https://github.com/ElitondeSousa/golden-park numa aba anônima e conferir README, instruções e resumo.
-3. Submeter no formulário do HackaRun até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e resumo de uma página (`docs/RESUMO-AVALIADORES.pdf`).
-4. Antes do pitch: rodar `pnpm demo:preparar` e `pnpm demo` no computador da apresentação e ensaiar o [roteiro](ROTEIRO-DEMONSTRACAO.md).
+1. Abrir https://github.com/ElitondeSousa/golden-park numa aba anônima e conferir README, instruções e resumo.
+2. Submeter no formulário do HackaRun até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e resumo de uma página (`docs/RESUMO-AVALIADORES.pdf`).
+3. Antes do pitch: rodar `pnpm demo:preparar` e `pnpm demo` no computador da apresentação e ensaiar o [roteiro](ROTEIRO-DEMONSTRACAO.md).
