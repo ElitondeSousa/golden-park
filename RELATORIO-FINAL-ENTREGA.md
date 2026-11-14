@@ -154,7 +154,7 @@ As limitações (simulação, sem hardware, testes só em Windows e Edge) estão
 
 ## 10. Ações que dependem da equipe
 
-1. Compartilhar a [pasta do pitch em vídeo](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link) como "Qualquer pessoa com o link". Hoje ela pede login.
+1. A [pasta do pitch em vídeo](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link) já está pública (qualquer pessoa com o link pode ver), mas ainda vazia: falta enviar o vídeo.
 2. Conferir o repositório numa aba anônima.
 3. Submeter até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e `docs/RESUMO-AVALIADORES.pdf`.
 4. Ensaiar a demonstração com o [roteiro](ROTEIRO-DEMONSTRACAO.md) no computador do pitch.
