@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Golden Park — vitrine do MVP</title>
+<meta name="description" content="Golden Park: distribuição inteligente de veículos no estacionamento do Capim Dourado Shopping. Telas do cliente (QR Code), da administração e simulação 3D.">
+<meta name="theme-color" content="#F7F9FC">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  :root { --bronze: #7F562C; --grafite: #161C29; --canvas: #F7F9FC; --cinza: #4C4C4C; --muted: #5E6A80; --linha: #E2E7EF; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--canvas); color: var(--grafite); font: 400 16px/1.55 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--bronze); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+  h1, h2, h3 { font-family: 'Barlow', system-ui, sans-serif; line-height: 1.1; margin: 0; text-wrap: balance; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  header.topo { background: #fff; border-bottom: 1px solid var(--linha); }
+  header.topo .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; flex-wrap: wrap; }
+  header.topo img { height: 30px; width: auto; display: block; }
+  nav.links { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.links a { text-decoration: none; color: var(--cinza); font-weight: 500; font-size: 15px; padding: 10px 12px; border-radius: 8px; min-height: 44px; display: inline-flex; align-items: center; }
+  nav.links a:hover { color: var(--bronze); background: #F7F0E8; }
+  .abertura { background: #fff; padding: 56px 0 48px; border-bottom: 1px solid var(--linha); }
+  .abertura h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 700; letter-spacing: -0.01em; max-width: 16ch; }
+  .abertura p.lead { font-size: clamp(17px, 2vw, 20px); color: var(--cinza); max-width: 62ch; margin: 18px 0 0; }
+  .aviso { margin-top: 24px; display: flex; gap: 12px; align-items: flex-start; max-width: 70ch; padding: 14px 16px; border-radius: 10px; background: #FFF3D1; color: #8A4B00; font-size: 15px; }
+  .aviso b { color: #6B3A00; }
+  .acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .botao { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: background-color .15s ease, transform .15s ease; }
+  .botao:active { transform: scale(.98); }
+  .botao.primario { background: var(--bronze); color: #fff; }
+  .botao.primario:hover { background: #6A4723; }
+  .botao.secundario { border: 1px solid var(--bronze); color: var(--bronze); background: #fff; }
+  .botao.secundario:hover { background: #F7F0E8; }
+  section.bloco { padding: 64px 0 8px; scroll-margin-top: 8px; }
+  section.bloco > .wrap > h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+  section.bloco > .wrap > p.sub { color: var(--cinza); max-width: 66ch; margin: 10px 0 0; }
+  .celulares { margin-top: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .telas { margin-top: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--linha); border-radius: 14px; background: #fff; }
+  .celulares figure img { border-radius: 22px; }
+  figcaption { margin-top: 10px; font-size: 14px; color: var(--muted); }
+  figcaption b { color: var(--grafite); font-weight: 600; }
+  ul.pontos { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 72ch; }
+  ul.pontos li { padding-left: 18px; position: relative; color: var(--cinza); }
+  ul.pontos li::before { content: ''; position: absolute; left: 0; top: .62em; width: 7px; height: 7px; border-radius: 50%; background: var(--bronze); }
+  .cena { margin-top: 28px; border: 1px solid var(--linha); border-radius: 14px; overflow: hidden; background: #0C111C; }
+  .cena iframe { display: block; width: 100%; height: min(78vh, 720px); border: 0; }
+  .cena-rodape { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 14px; color: var(--muted); }
+  .passos { margin-top: 24px; display: grid; gap: 10px; max-width: 760px; }
+  pre { margin: 0; background: #fff; border: 1px solid var(--linha); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 500 14px/1.5 'IBM Plex Mono', monospace; }
+  footer { margin-top: 72px; padding: 28px 0 40px; border-top: 1px solid var(--linha); color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 860px) { .celulares { grid-template-columns: repeat(2, minmax(0, 1fr)); } .telas { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 420px) { .celulares { gap: 12px; } .abertura { padding-top: 40px; } }
+</style>
+</head>
+<body>
+<a href="#cliente" style="position:absolute;left:-9999px" onfocus="this.style.left='8px'" onblur="this.style.left='-9999px'">Pular para as telas</a>
+<header class="topo">
+  <div class="wrap">
+    <img src="img/golden-park-claro-nome.png" alt="Golden Park" width="185" height="30">
+    <nav class="links" aria-label="Seções">
+      <a href="#cliente">Cliente</a>
+      <a href="#administracao">Administração</a>
+      <a href="#simulacao-3d">Simulação 3D</a>
+      <a href="#rodar">Como rodar</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abertura">
+    <div class="wrap">
+      <h1>O estacionamento que indica a vaga certa</h1>
+      <p class="lead">O Golden Park recomenda, na entrada, a melhor região do estacionamento do Capim Dourado Shopping para cada veículo e guia o motorista pelo celular, sem aplicativo. A operação acompanha tudo em tempo real.</p>
+      <div class="aviso" role="note"><span><b>Esta é uma vitrine estática.</b> As imagens abaixo são capturas das telas reais do MVP. O MVP completo (totem, QR Code e painel funcionando) roda com a API e o banco de dados, seguindo as instruções do repositório. Os números nas telas vêm do simulador e estão marcados como dados simulados.</span></div>
+      <div class="acoes">
+        <a class="botao primario" href="https://github.com/ElitondeSousa/golden-park">Ver o repositório</a>
+        <a class="botao secundario" href="#simulacao-3d">Abrir a simulação 3D</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco" id="cliente" aria-labelledby="t-cliente">
+    <div class="wrap">
+      <h2 id="t-cliente">Cliente: página do QR Code</h2>
+      <p class="sub">O motorista escaneia o QR Code do ticket e o celular abre o mapa da planta real, com a rota pelos corredores até a região indicada. Depois de estacionar, o mesmo QR Code mostra onde o carro ficou.</p>
+      <div class="celulares">
+        <figure><img src="img/mvp-localizador-375-claro.png" alt="Celular com o mapa em tela cheia, a rota até a região N3 e o painel inferior com o código N3" width="750" height="1624" loading="lazy"><figcaption><b>A caminho.</b> Rota até a região e destino em destaque.</figcaption></figure>
+        <figure><img src="img/mvp-localizador-375-detalhes.png" alt="Painel inferior expandido com os passos de como chegar e o aviso de que a indicação não reserva vaga" width="750" height="1624" loading="lazy"><figcaption><b>Detalhes.</b> Passos, ticket e aviso de que não há reserva.</figcaption></figure>
+        <figure><img src="img/vagas-qr-claro.png" alt="Página do QR Code de um ticket de vaga PcD, com o selo do tipo de vaga" width="780" height="1688" loading="lazy"><figcaption><b>Vaga PcD.</b> Tipo da vaga e lembrete da credencial.</figcaption></figure>
+        <figure><img src="img/mvp-localizador-430-escuro.png" alt="A mesma página no tema escuro" width="860" height="1864" loading="lazy"><figcaption><b>Tema escuro.</b> Mesma navegação, contraste conferido.</figcaption></figure>
+      </div>
+      <ul class="pontos">
+        <li>Sem GPS: a página mostra a região indicada (ou registrada) e o caminho pelas vias.</li>
+        <li>Zoom com pinça, arrastar, centralizar no destino e ver a rota inteira.</li>
+        <li>Atualiza sozinha quando o estacionamento é confirmado e quando o veículo sai.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="bloco" id="administracao" aria-labelledby="t-admin">
+    <div class="wrap">
+      <h2 id="t-admin">Administração: painel da operação</h2>
+      <p class="sub">Vagas livres em destaque, mapa com a ocupação de cada região, tabela de zonas com vagas comuns, PcD e para pessoa idosa, operação de tickets e o simulador, tudo atualizando em tempo real.</p>
+      <div class="telas">
+        <figure><img src="img/mvp-painel-1440-claro.png" alt="Painel administrativo com 887 vagas livres de 1.269, mapa do térreo e indicadores" width="1440" height="900" loading="lazy"><figcaption><b>Visão geral.</b> Número dominante, mapa e indicadores.</figcaption></figure>
+        <figure><img src="img/mvp-painel-1440-escuro.png" alt="Painel administrativo no tema escuro" width="1440" height="900" loading="lazy"><figcaption><b>Tema escuro.</b> Preferência salva por usuário.</figcaption></figure>
+        <figure><img src="img/mapa-sim-veiculos.png" alt="Mapa do painel com veículos simulados percorrendo as vias até as regiões" width="768" height="622" loading="lazy"><figcaption><b>Simulação no mapa.</b> Veículos simulados seguindo a rota; a vaga só é ocupada na confirmação.</figcaption></figure>
+        <figure><img src="img/vagas-painel-resumo.png" alt="Resumo das vagas reservadas: PcD e pessoa idosa com o mínimo legal atendido" width="326" height="266" loading="lazy"><figcaption><b>Vagas reservadas.</b> Mínimos legais e alertas quando a distribuição fica abaixo.</figcaption></figure>
+      </div>
+      <h3 style="margin-top:40px;font-size:24px">Totem de entrada</h3>
+      <div class="telas">
+        <figure><img src="img/mvp-totem-1440-tipo.png" alt="Totem perguntando o tipo de vaga: comum, PcD ou pessoa idosa" width="1440" height="900" loading="lazy"><figcaption><b>Tipo de vaga.</b> Declaração do motorista, sem dados médicos.</figcaption></figure>
+        <figure><img src="img/mvp-totem-1440-recomendacao.png" alt="Totem com a região N3 recomendada, vagas livres, passos e o botão Emitir ticket" width="1440" height="900" loading="lazy"><figcaption><b>Recomendação.</b> Região, motivo, caminho e emissão do ticket com QR Code.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco" id="simulacao-3d" aria-labelledby="t-3d">
+    <div class="wrap">
+      <h2 id="t-3d">Simulação 3D do estacionamento</h2>
+      <p class="sub">Maquete 3D interativa dos três níveis feita sobre a planta, a mesma exibida na aba "Simulação 3D" do painel. A movimentação é ilustrativa, gerada no navegador; posições dos subsolos e rampas são aproximadas.</p>
+      <div class="cena">
+        <iframe src="simulacao-3d/index.html" title="Simulação 3D do estacionamento Golden Park (ilustrativa)" loading="lazy" allowfullscreen></iframe>
+      </div>
+      <div class="cena-rodape"><span>Arraste para girar, use a roda ou a pinça para aproximar.</span><a href="simulacao-3d/index.html" target="_blank" rel="noopener">Abrir em tela cheia</a></div>
+    </div>
+  </section>
+
+  <section class="bloco" id="rodar" aria-labelledby="t-rodar">
+    <div class="wrap">
+      <h2 id="t-rodar">Rodar o MVP completo</h2>
+      <p class="sub">Com Node.js 22+, pnpm 10 e Docker Desktop aberto, cinco comandos sobem a API, o banco e as três telas. O passo a passo completo, com o resultado esperado de cada etapa, está em <a href="https://github.com/ElitondeSousa/golden-park/blob/main/INSTRUCOES-DE-EXECUCAO.md">INSTRUCOES-DE-EXECUCAO.md</a>.</p>
+      <div class="passos">
+        <pre>git clone https://github.com/ElitondeSousa/golden-park.git &amp;&amp; cd golden-park</pre>
+        <pre>pnpm install</pre>
+        <pre>cp .env.example apps/api/.env</pre>
+        <pre>pnpm demo:preparar</pre>
+        <pre>pnpm demo</pre>
+      </div>
+      <ul class="pontos">
+        <li>Totem: http://localhost:5173/totem?acesso=A_ROT</li>
+        <li>Painel: http://localhost:5173/painel</li>
+        <li>Cliente: o endereço do QR Code impresso no ticket (/t/…)</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Golden Park · HackaRun 2026 · Eliton de Sousa Pereira, Marcos Feliphe Freitas Moraes, Gustavo Araújo Lopes e Arthur Santos Coelho</span>
+    <a href="https://github.com/ElitondeSousa/golden-park">github.com/ElitondeSousa/golden-park</a>
+  </div>
+</footer>
+</body>
+</html>

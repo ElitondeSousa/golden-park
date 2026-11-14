@@ -25,6 +25,10 @@ Sistema que **organiza e distribui automaticamente os veículos** no estacioname
   <img src="docs/mvp/capturas/mvp-painel-1440-claro.png" alt="Painel administrativo" width="49%">
 </p>
 
+### ▶ [Ver a vitrine online (Vercel)](https://golden-park-weld.vercel.app)
+
+Telas do cliente (QR Code), da administração e do totem, com a simulação 3D interativa. É uma vitrine estática; o MVP completo roda localmente com a API e o banco.
+
 > **Para avaliar:**
 > - [INSTRUCOES-DE-EXECUCAO.md](INSTRUCOES-DE-EXECUCAO.md): passo a passo verificável, validado numa instalação limpa;
 > - [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md): demonstração de 3 a 5 minutos;
