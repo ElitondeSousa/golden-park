@@ -15,6 +15,21 @@ const somaOcupadas = async () => {
   return ((await (await api.get('/api/regioes')).json()) as { ocupadas: number }[]).reduce((s, r) => s + r.ocupadas, 0);
 };
 
+
+/** Câmera do mapa: viewBox no mapa 2D, posição da câmera (data-camera) no mapa 3D. */
+const cameraDe = (mapa: import('@playwright/test').Locator) => mapa.evaluate((e) => e.getAttribute('viewBox') ?? e.getAttribute('data-camera') ?? '');
+/** Espera a câmera parar (fim de animação/amortecimento) e devolve o valor estável. */
+async function cameraEstavel(mapa: import('@playwright/test').Locator) {
+  let anterior = await cameraDe(mapa);
+  for (let i = 0; i < 40; i++) {
+    await new Promise((r) => setTimeout(r, 250));
+    const agora = await cameraDe(mapa);
+    if (agora && agora === anterior) return agora;
+    anterior = agora;
+  }
+  return anterior;
+}
+
 test.beforeEach(async () => { await (await apiTeste()).post('/api/simulacao/reiniciar'); });
 
 for (const cel of CELULARES) {
@@ -53,16 +68,16 @@ for (const cel of CELULARES) {
       expect(b.height).toBeGreaterThanOrEqual(44);
       expect(b.y + b.height).toBeLessThanOrEqual(painel.y);
     }
-    // arrastar move o mapa; "ver rota inteira" volta ao enquadramento
-    const vb0 = await mapa.getAttribute('viewBox');
+    // arrastar move o mapa; "ver rota inteira" volta ao enquadramento (2D: viewBox; 3D: posição da câmera)
+    const vb0 = await cameraEstavel(mapa);
     const m = (await mapa.boundingBox())!;
     await page.mouse.move(m.x + m.width / 2, m.y + 150);
     await page.mouse.down();
     await page.mouse.move(m.x + m.width / 2 - 80, m.y + 190, { steps: 6 });
     await page.mouse.up();
-    await expect(mapa).not.toHaveAttribute('viewBox', vb0!);
+    await expect.poll(() => cameraDe(mapa)).not.toBe(vb0);
     await page.getByRole('button', { name: 'Ver rota inteira' }).tap();
-    await expect(mapa).toHaveAttribute('viewBox', vb0!);
+    await expect.poll(() => cameraDe(mapa), { timeout: 8000 }).toBe(vb0);
 
     expect(await somaOcupadas()).toBe(antes); // ver a rota não ocupa nem reserva vaga
     await page.close();
@@ -109,14 +124,21 @@ test('tema escuro: a rota continua visível e o easter egg não cobre o mapa', a
   await page.addInitScript(() => localStorage.setItem('gp-tema', 'escuro'));
   await page.goto(`/t/${token}`);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  const traco = page.locator('.gp-rota-traco').first();
-  await expect(traco).toBeAttached();
-  const [cor, papel] = await page.evaluate(() => {
-    const t = getComputedStyle(document.querySelector('.gp-rota-traco')!).stroke;
-    const p = getComputedStyle(document.querySelector('[data-testid="mapa-estacionamento"]')!.parentElement!).backgroundColor;
-    return [t, p];
-  });
-  expect(cor).not.toBe(papel);
+  const mapa = page.getByTestId('mapa-estacionamento');
+  await expect(mapa.locator('[data-camada="rota"]').first()).toBeAttached();
+  if ((await mapa.getAttribute('data-modo')) === '3d') {
+    // mapa 3D: a cena é desenhada (canvas WebGL) e a cor da rota (token) difere do papel do mapa no tema escuro
+    await expect(mapa.locator('canvas')).toBeVisible();
+    const [rota, papel] = await page.evaluate(() => { const cs = getComputedStyle(document.documentElement); return [cs.getPropertyValue('--pv-wayfinding-route').trim(), cs.getPropertyValue('--pv-mapa-papel').trim()]; });
+    expect(rota).not.toBe(papel);
+  } else {
+    const [cor, papel] = await page.evaluate(() => {
+      const t = getComputedStyle(document.querySelector('.gp-rota-traco')!).stroke;
+      const p = getComputedStyle(document.querySelector('[data-testid="mapa-estacionamento"]')!.parentElement!).backgroundColor;
+      return [t, p];
+    });
+    expect(cor).not.toBe(papel);
+  }
   // a abóbora fica no cabeçalho; tocar nela não impede usar o mapa depois
   await page.getByRole('button', { name: /Abóbora de Halloween/ }).tap();
   await page.getByRole('button', { name: 'Ver rota inteira' }).tap();

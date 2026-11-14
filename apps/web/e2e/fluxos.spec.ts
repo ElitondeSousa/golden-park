@@ -11,6 +11,21 @@ const somaOcupadas = async () => {
 };
 const semRolagemHorizontal = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 
+
+/** Câmera do mapa: viewBox no mapa 2D, posição da câmera (data-camera) no mapa 3D. */
+const cameraDe = (mapa: import('@playwright/test').Locator) => mapa.evaluate((e) => e.getAttribute('viewBox') ?? e.getAttribute('data-camera') ?? '');
+/** Espera a câmera parar (fim de animação/amortecimento) e devolve o valor estável. */
+async function cameraEstavel(mapa: import('@playwright/test').Locator) {
+  let anterior = await cameraDe(mapa);
+  for (let i = 0; i < 40; i++) {
+    await new Promise((r) => setTimeout(r, 250));
+    const agora = await cameraDe(mapa);
+    if (agora && agora === anterior) return agora;
+    anterior = agora;
+  }
+  return anterior;
+}
+
 test.beforeEach(async () => {
   const api = await apiTeste();
   await api.post('/api/simulacao/reiniciar');
@@ -116,11 +131,13 @@ test('localizador no celular: mapa em tela cheia, painel inferior e alvos de toq
   const centralizar = page.getByRole('button', { name: 'Centralizar no veículo' });
   const botao = (await centralizar.boundingBox())!;
   expect(botao.height).toBeGreaterThanOrEqual(44);
-  const antes = await mapa.getAttribute('viewBox');
   await page.getByRole('tab', { name: /^Subsolo 1/ }).tap();
+  await expect(mapa).toHaveAttribute('data-nivel', 'ss1');
+  await expect(page.getByTestId('pino-destino')).toHaveCount(0);       // o veículo não está neste nível
   await centralizar.tap();                                            // volta para o nível e a região do veículo
   await expect(mapa).toHaveAttribute('data-nivel', 'terreo');
-  await expect(mapa).toHaveAttribute('viewBox', antes!);
+  await expect(page.getByTestId('pino-destino')).toBeVisible();
+  await expect(mapa.locator('[data-destino="true"]')).toHaveAttribute('data-regiao', 'S1');
   await page.close();
 });
 

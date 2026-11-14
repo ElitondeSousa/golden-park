@@ -548,7 +548,7 @@ function Padroes({ id, fs }: { id: string; fs: number }) {
   );
 }
 
-function AbasDeNivel({ nivel, aoTrocar, regioes, destino, trechos, compactas }: { nivel: Nivel; aoTrocar: (n: Nivel) => void; regioes?: Regiao[]; destino?: string | null; trechos: Nivel[]; compactas?: boolean }) {
+export function AbasDeNivel({ nivel, aoTrocar, regioes, destino, trechos, compactas }: { nivel: Nivel; aoTrocar: (n: Nivel) => void; regioes?: Regiao[]; destino?: string | null; trechos: Nivel[]; compactas?: boolean }) {
   return (
     // padrão: abas sublinhadas (bronze) como nos wireframes; compactas (sobre o mapa): segmento com fundo quente na ativa
     <div role="tablist" aria-label="Nível do estacionamento" className={compactas ? 'inline-flex max-w-full overflow-x-auto gap-0.5 p-1 rounded-lg bg-surface border border-line shadow-[var(--pv-shadow-sm)]' : 'flex gap-1 mb-2 overflow-x-auto border-b border-line'}>

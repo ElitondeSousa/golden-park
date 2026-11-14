@@ -15,7 +15,7 @@
  */
 import { NOME_TIPO_VAGA, type Nivel } from '@parkvision/shared';
 import { ArrowLeft, ChevronDown, ChevronRight, Crosshair, Headset, LogOut, Play, QrCode, RefreshCw, Route, SearchX, TicketX, WifiOff, type LucideIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { Botao, Esqueleto, Selo, Status } from '../../componentes/base.tsx';
 import { IconeCategoria } from '../../componentes/IconeCategoria.tsx';
@@ -23,6 +23,10 @@ import { COR_TIPO_VAGA, IconeTipoVaga, SeloTipoVaga } from '../../componentes/Ic
 import { doAcesso, nomeCurto, nomeDoNivel, orientacaoDaRota, regiaoDoMapa, trechosDaRota } from '../../mapa/dados.ts';
 import { NOME_CATEGORIA, dataHora, hora } from '../../mapa/estado.ts';
 import { MapaEstacionamento, type VeiculoAnimado } from '../../mapa/MapaEstacionamento.tsx';
+import type { ComandoCamera } from '../../mapa/MapaNavegacao3D.tsx';
+import { temWebGL } from '../../mapa/webgl.ts';
+// o mapa 3D (three.js) só é baixado na página do QR Code, e só quando o aparelho tem WebGL
+const MapaNavegacao3D = lazy(() => import('../../mapa/MapaNavegacao3D.tsx').then((m) => ({ default: m.MapaNavegacao3D })));
 import { caixa, caixaDaNavegacao, comprimento, enquadrar, pontosNoNivel, type Camera } from '../../mapa/navegacao.ts';
 import { ErroServico, api, type RespostaLocalizador } from '../../servicos/api.ts';
 import { useTicketAoVivo } from '../../servicos/tempo-real.ts';
@@ -177,6 +181,10 @@ function Navegacao({ dados, aoVivo, larga, expandido, setExpandido }: PropsNaveg
     setNivel(nivelInicial);
   }, [destino, nivelInicial]);
   const [camera, setCamera] = useState<Camera | null>(null);
+  // mapa 3D (estilo app de navegação) quando o aparelho tem WebGL; senão, o mapa 2D de sempre
+  const usa3D = useMemo(temWebGL, []);
+  const [comando3D, setComando3D] = useState<ComandoCamera>({ tipo: 'rota', n: 0 });
+  const [margens3D, setMargens3D] = useState({ topo: 64, baixo: 16 });
   const [demo, setDemo] = useState<VeiculoAnimado | null>(null);
   const mapaRef = useRef<HTMLDivElement>(null), painelRef = useRef<HTMLElement>(null);
   const passos = useMemo(() => {
@@ -203,10 +211,11 @@ function Navegacao({ dados, aoVivo, larga, expandido, setExpandido }: PropsNaveg
     const iN = trechos.findIndex((t) => t.nivel === n);
     const topo = (iN >= 0 && trechos[iN + 1]) || timers.current.length ? 112 : 64;
     const baixo = larga ? 16 : Math.min(painel, height * 0.6) + 16;
+    if (usa3D) { setMargens3D({ topo, baixo }); setComando3D((c) => ({ tipo, n: c.n + 1 })); return; }
     const c = enquadrar(bbox, width, height, topo + baixo, tipo === 'destino' ? 2.2 : 1.4);
     const k = c[2] / width; // unidades do mapa por pixel
     setCamera([c[0], c[1] - topo * k, c[2], c[3]]);
-  }, [nivel, destino, nos, larga, trechos]);
+  }, [nivel, destino, nos, larga, trechos, usa3D]);
   useEffect(() => {
     ajustar('rota');
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => ajustar('rota')) : null;
@@ -347,6 +356,23 @@ function Navegacao({ dados, aoVivo, larga, expandido, setExpandido }: PropsNaveg
 
   const mapa = (
     <div ref={mapaRef} className={larga ? 'relative h-full rounded-xl border border-line overflow-hidden' : 'absolute inset-0'}>
+      {usa3D ? (
+        <Suspense fallback={<div className="h-full esqueleto" aria-hidden />}>
+        <MapaNavegacao3D
+          className="h-full"
+          nivel={nivel}
+          aoTrocarNivel={trocarNivel}
+          destino={destino}
+          rota={nos}
+          apagarOutras={!chegando}
+          rotuloDestino={chegando ? (reservada ? (tipoVaga === 'PCD' ? 'Vaga PcD' : 'Vaga 60+') : 'Seu destino') : 'Seu veículo'}
+          veiculos={demo ? [demo] : undefined}
+          comando={comando3D}
+          margemTopo={margens3D.topo}
+          margemBaixo={margens3D.baixo}
+        />
+        </Suspense>
+      ) : (
       <MapaEstacionamento
         className="h-full"
         preencher
@@ -364,6 +390,7 @@ function Navegacao({ dados, aoVivo, larga, expandido, setExpandido }: PropsNaveg
         rotuloDestino={chegando ? (reservada ? (tipoVaga === 'PCD' ? 'Vaga PcD' : 'Vaga 60+') : 'Seu destino') : 'Seu veículo'}
         veiculos={demo ? [demo] : undefined}
       />
+      )}
       {proximo && !demo && (
         <button
           type="button"
