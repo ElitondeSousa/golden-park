@@ -23,11 +23,10 @@ Prazo: **14/11/2026, 12h (Brasília)**. Itens marcados apenas quando verificados
 | ☑ | Roteiro de demonstração pronto | [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md) (3 a 5 min), só com funções implementadas |
 | ☑ | Repositório acessível aos avaliadores | Repositório **público** no GitHub (conferido), com todos os documentos enviados |
 | ☑ | Vitrine online | https://golden-park-weld.vercel.app responde (telas estáticas do cliente, da administração e do totem) |
-| ☑ | Pasta do pitch acessível | Link no README; pasta compartilhada como "Qualquer pessoa com o link" (Leitor) e conferida sem login. *A pasta ainda está vazia: falta a equipe enviar o vídeo.* |
+| ☑ | Pasta do pitch acessível | Link no README; pasta compartilhada como "Qualquer pessoa com o link" (Leitor) e conferida sem login: contém o vídeo (`golden-park-previa-720p.mp4`) e o resumo do pitch em PDF. |
 
 ## Ações da equipe
 
-1. Enviar o vídeo para a [pasta do pitch](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link), que já é pública e hoje está vazia.
-2. Abrir https://github.com/ElitondeSousa/golden-park numa aba anônima e conferir README, instruções, resumo e o link do pitch.
-3. Submeter no formulário do HackaRun até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e resumo de uma página (`docs/RESUMO-AVALIADORES.pdf`).
-4. Antes do pitch: rodar `pnpm demo:preparar` e `pnpm demo` no computador da apresentação e ensaiar o [roteiro](ROTEIRO-DEMONSTRACAO.md).
+1. Abrir https://github.com/ElitondeSousa/golden-park numa aba anônima e conferir README, instruções, resumo e o link do pitch.
+2. Submeter no formulário do HackaRun até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e resumo de uma página (`docs/RESUMO-AVALIADORES.pdf`).
+3. Antes do pitch: rodar `pnpm demo:preparar` e `pnpm demo` no computador da apresentação e ensaiar o [roteiro](ROTEIRO-DEMONSTRACAO.md).
