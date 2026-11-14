@@ -25,13 +25,25 @@ Sistema que **organiza e distribui automaticamente os veículos** no estacioname
   <img src="docs/mvp/capturas/mvp-painel-1440-claro.png" alt="Painel administrativo" width="49%">
 </p>
 
+> **Para avaliar:**
+> - [INSTRUCOES-DE-EXECUCAO.md](INSTRUCOES-DE-EXECUCAO.md): passo a passo verificável, validado numa instalação limpa;
+> - [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md): demonstração de 3 a 5 minutos;
+> - [docs/DOCUMENTACAO-TECNICA.md](docs/DOCUMENTACAO-TECNICA.md): arquitetura, API, algoritmo e dados;
+> - [docs/RESUMO-AVALIADORES.pdf](docs/RESUMO-AVALIADORES.pdf): resumo de uma página.
+
+## Problema e público-alvo
+
+- **Problema:** em horários de movimento, os motoristas rodam pelo estacionamento procurando vaga. Algumas áreas lotam enquanto outras ficam vazias, e isso gera filas na entrada, congestionamento interno e perda de tempo. Na volta, muita gente não lembra onde deixou o carro.
+- **Público-alvo:** clientes do Capim Dourado Shopping que chegam de carro ou moto, incluindo pessoas com deficiência e pessoas idosas, que precisam de vagas reservadas, e a equipe de operação do estacionamento.
+- **Objetivo:** o próprio estacionamento indica, na entrada, a melhor região para cada veículo e guia o motorista pelo celular, sem aplicativo.
+
 ## As três interfaces
 
 | Interface | Endereço | O que faz |
 |---|---|---|
 | **Totem de entrada** | `/totem?acesso=A_ROT` | O motorista escolhe o veículo e, se precisar, a vaga reservada (PcD ou pessoa idosa). Recebe a região recomendada, o motivo e o caminho, e emite o ticket com QR Code. |
 | **Localizador (QR Code)** | `/t/<token>` | Página mobile tipo app de navegação: mapa em tela cheia, rota pelos corredores até a região, painel inferior com orientações e ticket. Depois de estacionar, mostra a região registrada. |
-| **Painel administrativo** | `/painel` | Vagas livres em destaque, mapa interativo com ocupação por região, tabela de zonas (comuns, PcD, pessoa idosa), operação de tickets, simulador e vagas reservadas. |
+| **Painel administrativo** | `/painel` | Vagas livres em destaque, mapa interativo com ocupação por região, tabela de zonas (comuns, PcD, pessoa idosa), operação de tickets, simulador e vagas reservadas. No mapa, a aba **Simulação 3D** mostra a maquete 3D do estacionamento com movimentação ilustrativa. |
 
 As três seguem a identidade aprovada nos wireframes:
 - bronze como cor de ação e ouro no logo;
@@ -58,6 +70,25 @@ Ainda **não** fazem parte do MVP:
 - sensores físicos (os eventos de sensor existem na API e são simulados);
 - painéis de LED;
 - pagamento por QR Code.
+
+## Arquitetura
+
+```
+apps/web (React + Vite)  ── REST /api + Socket.IO ──▶  apps/api (Fastify)  ── Prisma ──▶  PostgreSQL 16 (Docker)
+ totem · localizador · painel                           rotas · serviços · tempo real · simulador
+ mapa SVG da planta real                                 usa packages/core (algoritmo + rotas) e packages/shared (contratos + mapa)
+```
+
+| Componente | Como funciona |
+|---|---|
+| **Front-end** (`apps/web`) | Três telas em React. Em desenvolvimento, o Vite repassa `/api` e `/socket.io` para a API em `localhost:3333`. |
+| **Back-end** (`apps/api`) | API REST em Fastify, validação com Zod e eventos em tempo real com Socket.IO (namespaces `/painel` e `/localizador`). Única fonte da verdade da ocupação. |
+| **Banco** | PostgreSQL 16 via Docker Compose. O esquema é aplicado com `prisma db push` e o seed carrega as regiões do mapa. |
+| **Algoritmo** (`packages/core`) | Funções puras: pontuação por disponibilidade, distância pela rota e fluxo; menor caminho (Dijkstra) no grafo de vias; regras das vagas reservadas. |
+| **Simulador** | Roda dentro da API e usa os mesmos serviços dos dados reais. Os dados que ele gera ficam marcados como simulados. |
+| **Integração** | O totem cria o ticket e a recomendação, e a ocupação não muda. A confirmação e a saída mudam a ocupação no banco. Os eventos atualizam o painel e o QR Code daquele ticket. |
+
+Detalhes em [docs/DOCUMENTACAO-TECNICA.md](docs/DOCUMENTACAO-TECNICA.md).
 
 ## Como rodar
 
@@ -143,6 +174,16 @@ Ponta a ponta (Playwright com o Edge; sobe a API e a web em portas próprias, no
 ```bash
 pnpm e2e
 ```
+
+### Limitações (o que é simulado)
+
+- **Ocupação de demonstração:** vem do **simulador**, sempre marcada como "dados simulados". Com `MODO_DEMONSTRACAO="true"`, os tickets do totem também ficam marcados como simulados.
+- **Sensores:** não há sensores físicos. Os eventos de sensor existem na API (`POST /api/sensores/eventos`) e são gerados pelo simulador. Na demonstração, a confirmação é feita pelo painel.
+- **Hardware e pagamento:** não há painéis de LED nem pagamento.
+- **Localizador:** sem GPS. A página do QR mostra a região indicada ou a registrada e o caminho pelo grafo de vias, que é simplificado.
+- **Vagas reservadas:** a posição física das vagas PcD e de pessoa idosa no térreo é uma proposta simulada.
+- **Simulação 3D do painel:** é ilustrativa. A movimentação é gerada no navegador, não usa a ocupação real e precisa de internet para baixar a biblioteca Three.js. Posições dos subsolos e rampas são aproximadas.
+- **Testes:** só foram feitos no Edge (Chromium).
 
 ### Problemas comuns
 
