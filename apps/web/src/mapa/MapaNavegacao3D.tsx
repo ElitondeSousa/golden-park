@@ -159,7 +159,7 @@ export function MapaNavegacao3D(props: Props) {
 
     // ── chão do nível ──
     const vb = NIVEIS.find((n) => n.id === nivel)!.viewBox;
-    const chao = new THREE.Mesh(guardar(new THREE.PlaneGeometry(vb[2] * 1.6, vb[3] * 1.6)), mat(papel.clone().offsetHSL(0, 0, -0.02)));
+    const chao = new THREE.Mesh(guardar(new THREE.PlaneGeometry(vb[2] * 1.6, vb[3] * 1.6)), mat(papel.clone().lerp(tinta, 0.1)));
     chao.rotation.x = -Math.PI / 2;
     chao.position.set(vb[0] + vb[2] / 2, 0, vb[1] + vb[3] / 2);
     cena.add(chao);

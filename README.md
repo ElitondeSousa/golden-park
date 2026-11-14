@@ -13,9 +13,9 @@ Sistema que **organiza e distribui automaticamente os veículos** no estacioname
 > **Status atual: MVP funcional.** As três interfaces (totem, localizador pelo QR Code e painel administrativo) estão implementadas e integradas ao back-end real: API, banco, algoritmo, simulador e tempo real. Os números de ocupação nas demonstrações vêm do simulador e aparecem sempre marcados como dados simulados.
 
 <p align="center">
-  <img src="docs/mvp/capturas/mvp-localizador-375-claro.png" alt="Localizador pelo QR Code no celular" height="420">
+  <img src="docs/mvp/capturas/cliente-3d-claro.png" alt="Localizador pelo QR Code: mapa 3D com a rota em setas até a região" height="420">
   &nbsp;
-  <img src="docs/mvp/capturas/mvp-localizador-320-escuro.png" alt="Localizador no tema escuro" height="420">
+  <img src="docs/mvp/capturas/cliente-3d-escuro.png" alt="Localizador no tema escuro" height="420">
 </p>
 
 <p align="center">
@@ -31,7 +31,9 @@ Telas do cliente (QR Code), da administração e do totem, com a simulação 3D 
 > - [INSTRUCOES-DE-EXECUCAO.md](INSTRUCOES-DE-EXECUCAO.md): passo a passo verificável, validado numa instalação limpa;
 > - [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md): demonstração de 3 a 5 minutos;
 > - [docs/DOCUMENTACAO-TECNICA.md](docs/DOCUMENTACAO-TECNICA.md): arquitetura, API, algoritmo e dados;
-> - [docs/RESUMO-AVALIADORES.pdf](docs/RESUMO-AVALIADORES.pdf): resumo de uma página.
+> - [docs/RESUMO-AVALIADORES.pdf](docs/RESUMO-AVALIADORES.pdf): resumo de uma página;
+> - [CHECKLIST-ENTREGA.md](CHECKLIST-ENTREGA.md) e [RELATORIO-FINAL-ENTREGA.md](RELATORIO-FINAL-ENTREGA.md): o que foi conferido e o estado final;
+> - [vitrine online](https://golden-park-weld.vercel.app): telas estáticas para ver sem instalar nada.
 
 ## Problema e público-alvo
 
@@ -44,7 +46,7 @@ Telas do cliente (QR Code), da administração e do totem, com a simulação 3D 
 | Interface | Endereço | O que faz |
 |---|---|---|
 | **Totem de entrada** | `/totem?acesso=A_ROT` | O motorista escolhe o veículo e, se precisar, a vaga reservada (PcD ou pessoa idosa). Recebe a região recomendada, o motivo e o caminho, e emite o ticket com QR Code. |
-| **Localizador (QR Code)** | `/t/<token>` | Página mobile tipo app de navegação: mapa em tela cheia, rota pelos corredores até a região, painel inferior com orientações e ticket. Depois de estacionar, mostra a região registrada. |
+| **Localizador (QR Code)** | `/t/<token>` | Página mobile no estilo de app de mobilidade: mapa **3D** em tela cheia (arrastar, girar e aproximar com os dedos), rota pelas vias com setas animadas até a região, troca de nível e painel inferior com orientações e ticket. Depois de estacionar, mostra a região registrada. Sem WebGL, cai para o mapa 2D da planta. |
 | **Painel administrativo** | `/painel` | Vagas livres em destaque, mapa interativo com ocupação por região, tabela de zonas (comuns, PcD, pessoa idosa), operação de tickets, simulador e vagas reservadas. No mapa, a aba **Simulação 3D** mostra a maquete 3D do estacionamento com movimentação ilustrativa. |
 
 As três seguem a identidade aprovada nos wireframes:
@@ -56,7 +58,7 @@ As três seguem a identidade aprovada nos wireframes:
 
 - **Distribuição inteligente:** cada região recebe uma pontuação por disponibilidade (50%), distância pela rota (30%) e fluxo recente (20%). A recomendação vem com justificativa em português.
 - **Sem reserva:** recomendar não ocupa vaga. A ocupação só muda quando o estacionamento é confirmado e quando o veículo sai, com a capacidade revalidada no banco, também em operações simultâneas.
-- **Rotas:** menor caminho no grafo de vias do mapa digital, que foi feito a partir da planta real, nos três níveis (térreo, subsolo 1 e subsolo 2).
+- **Rotas:** menor caminho no grafo de vias do mapa digital, que foi feito a partir da planta real, nos três níveis (térreo, subsolo 1 e subsolo 2). No celular, a rota aparece num mapa 3D gerado a partir dessa mesma geometria.
 - **Vagas PcD e para pessoa idosa:**
   - mínimos legais calculados sobre o total (Lei 13.146/2015 e Lei 10.741/2003);
   - quem pede vaga comum nunca recebe vaga reservada, e quem pede reservada só recebe do próprio tipo;
@@ -78,12 +80,12 @@ Ainda **não** fazem parte do MVP:
 ```
 apps/web (React + Vite)  ── REST /api + Socket.IO ──▶  apps/api (Fastify)  ── Prisma ──▶  PostgreSQL 16 (Docker)
  totem · localizador · painel                           rotas · serviços · tempo real · simulador
- mapa SVG da planta real                                 usa packages/core (algoritmo + rotas) e packages/shared (contratos + mapa)
+ mapa 3D (three.js) e 2D (SVG)                           usa packages/core (algoritmo + rotas) e packages/shared (contratos + mapa)
 ```
 
 | Componente | Como funciona |
 |---|---|
-| **Front-end** (`apps/web`) | Três telas em React. Em desenvolvimento, o Vite repassa `/api` e `/socket.io` para a API em `localhost:3333`. |
+| **Front-end** (`apps/web`) | Três telas em React. O localizador desenha o mapa em 3D com three.js (carregado só nessa página) e usa o mapa SVG quando não há WebGL; o painel usa o mapa SVG. Em desenvolvimento, o Vite repassa `/api` e `/socket.io` para a API em `localhost:3333` e aceita conexões da rede local (para o celular). |
 | **Back-end** (`apps/api`) | API REST em Fastify, validação com Zod e eventos em tempo real com Socket.IO (namespaces `/painel` e `/localizador`). Única fonte da verdade da ocupação. |
 | **Banco** | PostgreSQL 16 via Docker Compose. O esquema é aplicado com `prisma db push` e o seed carrega as regiões do mapa. |
 | **Algoritmo** (`packages/core`) | Funções puras: pontuação por disponibilidade, distância pela rota e fluxo; menor caminho (Dijkstra) no grafo de vias; regras das vagas reservadas. |
@@ -140,10 +142,10 @@ pnpm demo:preparar
 pnpm demo
 ```
 
-- API: `http://localhost:3333` (teste rápido: `http://localhost:3333/api/saude`)
+- API: `http://localhost:3333`
 - Web: `http://localhost:5173`
 
-Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`.
+Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`. Para conferir se tudo subiu, `http://localhost:3333/api/saude` responde `{"ok":true,"banco":"ok",...}`.
 
 ### 4. Usar
 
@@ -152,6 +154,20 @@ Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`.
 3. **Painel:** `http://localhost:5173/painel`. Para operar tickets e o simulador, informe o token do operador (o `SIMULADOR_TOKEN` do `.env`, por padrão `troque-este-token`).
 4. **Movimento de demonstração:** no painel, em Simulação, clique em "Simular estacionamento tranquilo" ou "Simular horário de pico". "Reiniciar" apaga só os dados simulados.
 
+### 5. Encerrar
+
+Aperte **Ctrl+C** no terminal do `pnpm demo`. Depois desligue o banco (os dados ficam guardados):
+
+```bash
+pnpm db:down
+```
+
+Para apagar também os dados e recomeçar do zero:
+
+```bash
+docker compose down -v
+```
+
 ### Variáveis de ambiente (`apps/api/.env`)
 
 | Variável | Padrão | Para que serve |
@@ -159,7 +175,7 @@ Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`.
 | `DATABASE_URL` | `postgresql://parkvision:parkvision@localhost:5433/parkvision` | Banco de desenvolvimento |
 | `DATABASE_URL_TESTE` | `…/parkvision_teste` | Banco dos testes (criado junto com o container) |
 | `PORTA` | `3333` | Porta da API |
-| `WEB_URL` | `http://localhost:5173` | Endereço usado no QR Code do ticket |
+| `WEB_URL` | `http://localhost:5173` | Endereço do QR Code do ticket. Se o totem for aberto pelo IP da rede, o QR passa a usar o endereço de rede sozinho |
 | `SIMULADOR_TOKEN` | `troque-este-token` | Token do operador e do simulador (troque fora da demonstração) |
 | `MODO_DEMONSTRACAO` | `true` | Marca tudo o que o totem e o painel criam como simulado |
 
@@ -182,7 +198,7 @@ pnpm e2e
 - **Ocupação de demonstração:** vem do **simulador**, sempre marcada como "dados simulados". Com `MODO_DEMONSTRACAO="true"`, os tickets do totem também ficam marcados como simulados.
 - **Sensores:** não há sensores físicos. Os eventos de sensor existem na API (`POST /api/sensores/eventos`) e são gerados pelo simulador. Na demonstração, a confirmação é feita pelo painel.
 - **Hardware e pagamento:** não há painéis de LED nem pagamento.
-- **Localizador:** sem GPS. A página do QR mostra a região indicada ou a registrada e o caminho pelo grafo de vias, que é simplificado.
+- **Localizador:** sem GPS. A página do QR mostra a região indicada ou a registrada e o caminho pelo grafo de vias, que é simplificado. O mapa 3D precisa de WebGL (sem ele, aparece o mapa 2D) e funciona sem internet; o volume dos prédios é ilustrativo.
 - **Vagas reservadas:** a posição física das vagas PcD e de pessoa idosa no térreo é uma proposta simulada.
 - **Simulação 3D do painel:** é ilustrativa. A movimentação é gerada no navegador, não usa a ocupação real e precisa de internet para baixar a biblioteca Three.js. Posições dos subsolos e rampas são aproximadas.
 - **Testes:** só foram feitos no Edge (Chromium).
@@ -201,7 +217,7 @@ Documentação técnica completa (arquitetura, API, eventos, algoritmo, dados, t
 
 | Etapa | Documento |
 |---|---|
-| Etapa 0 — Arquitetura do MVP, contratos, mapa digital | [01-arquitetura-mvp](docs/mvp/01-arquitetura-mvp.md) · [02-contratos](docs/mvp/02-contratos.md) · [04-proposta-mapa](docs/mvp/04-proposta-mapa.md) · [06-revisao-planta](docs/mvp/06-revisao-planta.md) |
+| Etapa 0 — Arquitetura do MVP, contratos, mapa digital | [00-relatorio-etapa-0](docs/mvp/00-relatorio-etapa-0.md) · [01-arquitetura-mvp](docs/mvp/01-arquitetura-mvp.md) · [02-contratos](docs/mvp/02-contratos.md) · [03-plano-execucao](docs/mvp/03-plano-execucao.md) · [04-proposta-mapa](docs/mvp/04-proposta-mapa.md) · [06-revisao-planta](docs/mvp/06-revisao-planta.md) |
 | Etapa 1 — Back-end e algoritmo | [07-relatorio-etapa-1](docs/mvp/07-relatorio-etapa-1.md) |
 | Etapa 2 — Simulador | [08-simulador](docs/mvp/08-simulador.md) · [09-relatorio-etapa-2](docs/mvp/09-relatorio-etapa-2.md) |
 | Etapa 3 — Interfaces e mapa interativo | [10-interfaces](docs/mvp/10-interfaces.md) · [11-relatorio-etapa-3](docs/mvp/11-relatorio-etapa-3.md) |
@@ -210,6 +226,7 @@ Documentação técnica completa (arquitetura, API, eventos, algoritmo, dados, t
 | Navegação mobile e simulação | [15-evolucao-mapa-navegacao](docs/mvp/15-evolucao-mapa-navegacao.md) |
 | Vagas PcD e pessoa idosa | [16-vagas-reservadas](docs/mvp/16-vagas-reservadas.md) |
 | Telas MVP a partir dos wireframes | [17-telas-mvp](docs/mvp/17-telas-mvp.md) |
+| Entrega final | [instruções de execução](INSTRUCOES-DE-EXECUCAO.md) · [roteiro](ROTEIRO-DEMONSTRACAO.md) · [checklist](CHECKLIST-ENTREGA.md) · [relatório final](RELATORIO-FINAL-ENTREGA.md) · [documentação técnica](docs/DOCUMENTACAO-TECNICA.md) · [resumo](docs/RESUMO-AVALIADORES.md) |
 
 Capturas de todas as etapas: [docs/mvp/capturas/](docs/mvp/capturas/).
 
@@ -218,7 +235,7 @@ Capturas de todas as etapas: [docs/mvp/capturas/](docs/mvp/capturas/).
 | Camada | Escolha |
 |---|---|
 | Linguagem | **TypeScript** |
-| Frontend | React 19 + Vite · Tailwind 4 ligado aos tokens do Design System · Lucide · mapa em SVG próprio |
+| Frontend | React 19 + Vite · Tailwind 4 ligado aos tokens do Design System · Lucide · mapa 3D com three.js e mapa 2D em SVG próprio |
 | Backend | Node.js 24 + Fastify 5 · Socket.IO · Prisma 6 · Zod |
 | Banco de dados | PostgreSQL 16 (Docker) |
 | Algoritmo e rotas | Pacote `@parkvision/core` (funções puras, Dijkstra no grafo de vias) |
@@ -232,6 +249,7 @@ Capturas de todas as etapas: [docs/mvp/capturas/](docs/mvp/capturas/).
 ├── apps/
 │   ├── api/            # Fastify + Socket.IO + Prisma, simulador embutido
 │   └── web/            # totem, localizador (QR Code) e painel — React + Vite
+│                       #   (public/simulacao-3d: maquete 3D da aba Simulação 3D do painel)
 ├── packages/
 │   ├── shared/         # contratos (tipos + Zod), mapa digital oficial, vagas reservadas
 │   └── core/           # algoritmo de distribuição, rotas e distribuição das vagas reservadas
@@ -240,7 +258,10 @@ Capturas de todas as etapas: [docs/mvp/capturas/](docs/mvp/capturas/).
 │   ├── mvp/            # documentação das etapas do MVP, mapa e capturas
 │   ├── diagrams/       # diagramas Mermaid
 │   └── planta/         # planta recebida (PDF + imagens)
-└── prototype/          # protótipo HTML da 1ª entrega (planejamento)
+├── prototype/          # protótipo HTML da 1ª entrega (planejamento)
+├── vitrine/            # vitrine estática publicada na Vercel
+├── INSTRUCOES-DE-EXECUCAO.md · ROTEIRO-DEMONSTRACAO.md
+└── CHECKLIST-ENTREGA.md · RELATORIO-FINAL-ENTREGA.md
 ```
 
 ## Equipe

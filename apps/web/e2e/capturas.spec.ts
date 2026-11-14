@@ -270,3 +270,29 @@ test('capturas das telas MVP definitivas (comparação com os wireframes)', asyn
   await pg.close();
   await api.post('/api/simulacao/reiniciar');
 });
+
+test('capturas do cliente com o mapa 3D de navegação', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const api = await apiTeste();
+  await api.post('/api/simulacao/reiniciar');
+  // S1 e S2 com as vagas comuns cheias só durante a captura: a indicação vai para o pátio norte e a rota fica longa
+  const regs = (await (await api.get('/api/regioes')).json()) as { id: string; vagas: { COMUM: { capacidade: number } } }[];
+  const ajustar = (id: string, ocupadas: number) => api.patch(`/api/regioes/${id}`, { data: { ocupadas } });
+  for (const id of ['S1', 'S2']) await ajustar(id, regs.find((r) => r.id === id)!.vagas.COMUM.capacidade);
+  const { token } = await entrar(api, 'CARRO_PEQUENO', 'A_S1');
+  for (const id of ['S1', 'S2']) await ajustar(id, 0);
+  const foto = async (tema: 'claro' | 'escuro', nome: string, antes?: (p: import('@playwright/test').Page) => Promise<void>) => {
+    const p = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await p.addInitScript((t) => localStorage.setItem('gp-tema', t), tema);
+    await p.goto(`/t/${token}`);
+    await expect(p.getByTestId('mapa-estacionamento')).toHaveAttribute('data-modo', '3d');
+    await expect(p.getByTestId('pino-destino')).toBeVisible();
+    await p.waitForTimeout(1800); // a câmera termina de enquadrar
+    if (antes) await antes(p);
+    await p.screenshot({ path: `${DESTINO}/cliente-3d-${nome}.png` });
+    await p.close();
+  };
+  await foto('claro', 'claro');
+  await foto('escuro', 'escuro');
+  await foto('claro', 'detalhes', async (p) => { await p.getByRole('button', { name: 'Mostrar detalhes' }).tap(); await p.waitForTimeout(700); });
+});
