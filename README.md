@@ -148,7 +148,7 @@ Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`.
 ### 4. Usar
 
 1. **Totem:** `http://localhost:5173/totem?acesso=A_ROT`. Escolha o veículo e o tipo de vaga, depois emita o ticket. Também funciona com os acessos `A_NE`, `A_S1` e `A_S2`.
-2. **Localizador:** escaneie o QR Code do ticket com o celular na mesma rede, trocando `localhost` pelo IP do computador em `WEB_URL`, ou abra o endereço `/t/…` no navegador.
+2. **Localizador:** para escanear com o celular (mesma rede Wi-Fi), abra o totem pelo IP do computador (a linha `Network:` do terminal, ex.: `http://192.168.0.10:5173/totem?acesso=A_ROT`). O QR Code sai com esse endereço. No próprio computador, abra o endereço `/t/…` do ticket.
 3. **Painel:** `http://localhost:5173/painel`. Para operar tickets e o simulador, informe o token do operador (o `SIMULADOR_TOKEN` do `.env`, por padrão `troque-este-token`).
 4. **Movimento de demonstração:** no painel, em Simulação, clique em "Simular estacionamento tranquilo" ou "Simular horário de pico". "Reiniciar" apaga só os dados simulados.
 
@@ -191,7 +191,7 @@ pnpm e2e
 
 - **`/api/saude` responde 503 ou a API não conecta:** o Docker Desktop está fechado ou o container parou. Abra o Docker e rode `pnpm db:up`.
 - **Porta 5433, 3333 ou 5173 ocupada:** feche o outro processo ou mude a porta (`PORTA` no `.env`; o PostgreSQL em `docker-compose.yml`).
-- **O QR Code não abre no celular:** o celular precisa alcançar o computador. Use o IP da máquina em `WEB_URL` e acesse a web por esse IP.
+- **O QR Code não abre no celular:** abra o totem pelo IP do computador (linha `Network:` do terminal), e não por `localhost`, para o QR sair com o endereço de rede. Celular e computador precisam estar na mesma rede, e o firewall do Windows precisa permitir o Node.js na porta 5173.
 - **`EPERM … query_engine-windows.dll.node` ao rodar `pnpm demo:preparar` ou `pnpm db:push` (Windows):** a API está rodando e prende o arquivo do Prisma. Pare a API (Ctrl+C no `pnpm demo`) e rode o comando de novo.
 - **Banco de teste inexistente** (volume criado antes): rode `docker exec parkvision-postgres psql -U parkvision -c "CREATE DATABASE parkvision_teste"`.
 

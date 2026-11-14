@@ -20,7 +20,7 @@ Este roteiro usa apenas funcionalidades implementadas e testadas no MVP. Os bot�
    - **Painel:** `http://localhost:5173/painel`
    - **Totem:** `http://localhost:5173/totem?acesso=A_ROT`
    - **Celular (QR Code):** escolha uma das opções.
-     - **Celular de verdade:** em `apps/api/.env`, coloque o IP do computador em `WEB_URL` (ex.: `http://192.168.0.10:5173`), reinicie o `pnpm demo` e deixe o celular na mesma rede.
+     - **Celular de verdade:** abra o **totem pelo IP do computador** (a linha `Network:` do terminal, ex.: `http://192.168.0.10:5173/totem?acesso=A_ROT`), com o celular na mesma rede Wi-Fi. O QR sai com esse endereço.
      - **Sem celular:** abra o link `/t/…` do ticket no navegador, com a visualização de celular das ferramentas de desenvolvedor.
 4. No painel, informe o "Token do operador" e clique em "Salvar". O token é o valor de `SIMULADOR_TOKEN` em `apps/api/.env`; no exemplo, `troque-este-token`.
 5. No painel, na seção Simulação, clique em "Reiniciar" e confirme, para começar do zero. Se quiser o estacionamento com movimento, clique em "Simular estacionamento tranquilo".
@@ -88,7 +88,7 @@ Diga: "Sem aplicativo e com a infraestrutura que o shopping já tem — totem, t
 ## Se algo der errado
 
 - **`http://localhost:3333/api/saude` responde 503 ou o painel mostra erro de conexão:** o Docker Desktop está fechado ou o banco parou. Abra o Docker e rode `pnpm db:up`.
-- **O QR Code não abre no celular:** o celular precisa alcançar o computador. Configure `WEB_URL` com o IP da máquina e reinicie o `pnpm demo`. Se não der tempo, abra o link `/t/…` no navegador do computador.
+- **O QR Code não abre no celular:** o totem foi aberto por `localhost`. Abra-o pelo IP do computador e emita outro ticket. Confira também se o celular está na mesma rede e se o firewall permite o Node.js. Se não der tempo, abra o link `/t/…` no navegador do computador.
 - **O painel pede o token ou recusa uma ação:** informe o "Token do operador", que é o mesmo valor de `SIMULADOR_TOKEN` em `apps/api/.env`.
 - **Números de uma demonstração anterior na tela:** em Simulação, clique em "Reiniciar". Isso apaga só os dados simulados.
 

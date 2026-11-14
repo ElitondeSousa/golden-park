@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import QRCode from 'qrcode';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { recomendacaoDeTeste, regioesDeTeste, renderizarEm, simularApi } from '../../testes/apoio.tsx';
-import { Totem } from './Totem.tsx';
+import { Totem, enderecoDoQr } from './Totem.tsx';
 
 const QR_URL = 'http://localhost:5173/t/AbCdEfGhIjKlMnOpQrStUv';
 const ticket = { codigo: 'PV-0042', categoria: 'CARRO_PEQUENO', acessoId: 'A_NE', placa: null, entradaEm: '2026-11-13T15:00:00.000Z', regiaoRecomendadaId: 'N3', regiaoEstacionadaId: null, estacionadoEm: null, saidaEm: null, status: 'AGUARDANDO' };
@@ -166,6 +166,14 @@ describe('totem de entrada', () => {
     expect(screen.getByRole('meter', { name: /Ocupação da região N3/ })).toBeInTheDocument();
     expect(screen.queryByText(/a pé|min|metros/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Emitir ticket' })).toHaveLength(1);
+  });
+
+  it('QR Code: usa o endereço do totem quando ele foi aberto pela rede (o celular não alcança localhost)', () => {
+    const daApi = 'http://localhost:5173/t/AbCdEfGhIjKlMnOpQrStUv';
+    expect(enderecoDoQr(daApi, 'http://192.168.0.10:5173')).toBe('http://192.168.0.10:5173/t/AbCdEfGhIjKlMnOpQrStUv');
+    expect(enderecoDoQr(daApi, 'http://localhost:5173')).toBe(daApi); // no próprio computador nada muda
+    expect(enderecoDoQr('https://estacionamento.exemplo.com/t/abc', 'http://192.168.0.10:5173')).toBe('https://estacionamento.exemplo.com/t/abc'); // WEB_URL configurado vale
+    expect(enderecoDoQr('não é url', 'http://192.168.0.10:5173')).toBe('não é url');
   });
 
   it('acesso inexistente na URL não abre o atendimento', () => {

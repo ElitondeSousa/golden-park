@@ -367,8 +367,27 @@ function TelaRecomendacao({ dados, regioes, tipoVaga, aoEmitir }: { dados: Respo
   );
 }
 
+/**
+ * Endereço do QR Code. A API monta o link com WEB_URL (padrão: localhost), que não abre num celular.
+ * Se o totem foi aberto por outro endereço (ex.: o IP do computador na rede local), o QR usa esse mesmo endereço,
+ * para o celular conseguir abrir a página do ticket sem precisar editar o .env.
+ */
+export function enderecoDoQr(qrUrl: string, origem: string | undefined = typeof window !== 'undefined' ? window.location.origin : undefined) {
+  try {
+    const qr = new URL(qrUrl);
+    const local = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+    if (!origem) return qrUrl;
+    const pagina = new URL(origem);
+    if (local(qr.hostname) && !local(pagina.hostname)) return `${pagina.origin}${qr.pathname}${qr.search}`;
+    return qrUrl;
+  } catch {
+    return qrUrl;
+  }
+}
+
 function TelaTicket({ dados, tipoVaga, aoConcluir, demonstracao }: { dados: RespostaEntrada; tipoVaga: TipoVaga; aoConcluir: () => void; demonstracao: boolean }) {
-  const { ticket, recomendacao, qrUrl } = dados;
+  const { ticket, recomendacao } = dados;
+  const qrUrl = enderecoDoQr(dados.qrUrl);
   const [svg, setSvg] = useState<string | null>('');
   const [restante, setRestante] = useState(RETORNO_TICKET_S);
   const concluirRef = useRef(aoConcluir);

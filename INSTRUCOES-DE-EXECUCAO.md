@@ -126,10 +126,11 @@ pnpm dev:web
 6. **Simulador:** em Simulação, clique em "Simular horário de pico".
    ✔ Os veículos simulados entram, os carrinhos andam no mapa e os números mudam, com o selo "Ambiente de demonstração · dados simulados". Para parar, clique em "Pausar". "Reiniciar" apaga só os dados simulados.
 
-**9.1. Abrir o QR Code num celular de verdade.** O celular precisa estar na mesma rede do computador:
-1. Em `apps/api/.env`, troque `WEB_URL` pelo IP do computador, ex.: `WEB_URL="http://192.168.0.10:5173"`.
-2. Reinicie o `pnpm demo` e emita um novo ticket.
-3. Se o celular não carregar, libere a porta 5173 no firewall.
+**9.1. Abrir o QR Code num celular de verdade.** O celular precisa estar na mesma rede (Wi-Fi) do computador:
+1. Veja o endereço de rede da web no terminal do `pnpm demo`: a linha `Network: http://<IP>:5173/` da interface Wi-Fi.
+2. Abra o totem por esse endereço, ex.: `http://192.168.0.10:5173/totem?acesso=A_ROT`, e emita o ticket. O QR Code sai com esse mesmo endereço, sem precisar editar o `.env`.
+3. Escaneie o QR com a câmera do celular.
+4. Se o celular não carregar, permita o Node.js na rede privada quando o Windows perguntar, ou libere a porta 5173 no firewall.
 
 O roteiro completo da apresentação está em [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md).
 

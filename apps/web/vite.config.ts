@@ -11,6 +11,8 @@ export default defineConfig({
   server: {
     port: Number(process.env.WEB_PORT ?? 5173),
     strictPort: true,
+    // escuta também na rede local: o celular abre o QR Code do ticket pelo IP do computador
+    host: true,
     proxy: {
       '/api': api,
       '/socket.io': { target: api, ws: true },
