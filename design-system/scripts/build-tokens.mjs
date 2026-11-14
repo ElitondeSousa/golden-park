@@ -5,7 +5,8 @@
  * Lê design-system/tokens/tokens.json (fonte única da verdade) e gera:
  *   - design-system/tokens/build/tokens.css      → variáveis CSS (--pv-*), tema claro + escuro
  *   - design-system/tokens/build/tokens.resolved.json → valores resolvidos (para gráficos/canvas, firmware de painéis)
- *   - prototype/assets/tokens.css                → cópia consumida pelo protótipo navegável
+ *   - (o protótipo da 1ª entrega em prototype/ tem uma cópia CONGELADA dos tokens, com o design planejado;
+ *      este build não a sobrescreve mais — os tokens atuais valem para o MVP em apps/web)
  *
  * Convenção de nomes:
  *   primitive.color.vision.600     → --pv-color-vision-600
@@ -127,9 +128,6 @@ const outDir = resolve(root, 'design-system/tokens/build');
 mkdirSync(outDir, { recursive: true });
 writeFileSync(resolve(outDir, 'tokens.css'), css);
 writeFileSync(resolve(outDir, 'tokens.resolved.json'), JSON.stringify(resolved, null, 2));
-const protoDir = resolve(root, 'prototype/assets');
-mkdirSync(protoDir, { recursive: true });
-writeFileSync(resolve(protoDir, 'tokens.css'), css);
 
 console.log(
   `✔ ${primitives.length} primitivos · ${semLight.length} semânticos (×2 temas) · ${components.length} de componente`
