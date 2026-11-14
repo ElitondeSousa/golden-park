@@ -61,53 +61,98 @@ Ainda **não** fazem parte do MVP:
 
 ## Como rodar
 
-Pré-requisitos: Node.js 22+, pnpm 10 e Docker Desktop.
+### Pré-requisitos
+
+- **Node.js 22 ou superior** (testado com o 24) e **pnpm 10** (`npm install -g pnpm`)
+- **Docker Desktop** (sobe o PostgreSQL 16 na porta 5433)
+- Para os testes ponta a ponta: **Microsoft Edge** instalado (o Playwright usa o Edge do sistema)
+
+### 1. Instalar e configurar
+
+```bash
+git clone https://github.com/ElitondeSousa/golden-park.git
+```
+
+```bash
+cd golden-park
+```
 
 ```bash
 pnpm install
 ```
 
+Copie o arquivo de exemplo para `apps/api/.env`. No Linux/macOS (Git Bash no Windows também serve):
+
 ```bash
 cp .env.example apps/api/.env
 ```
 
-```bash
-pnpm db:up
+No PowerShell do Windows:
+
+```powershell
+Copy-Item .env.example apps/api/.env
 ```
 
-```bash
-pnpm db:push
-```
+### 2. Preparar o banco
+
+Com o Docker Desktop aberto, rode o comando abaixo. Ele sobe o PostgreSQL, cria as tabelas e carrega as 10 regiões e os acessos do mapa real:
 
 ```bash
-pnpm db:seed
+pnpm demo:preparar
 ```
 
-Em dois terminais, suba a API (`http://localhost:3333`) e a web (`http://localhost:5173`):
+### 3. Subir a API e a web juntas
 
 ```bash
-pnpm dev:api
+pnpm demo
 ```
 
-```bash
-pnpm dev:web
-```
+- API: `http://localhost:3333` (teste rápido: `http://localhost:3333/api/saude`)
+- Web: `http://localhost:5173`
 
-Depois abra `http://localhost:5173/totem?acesso=A_ROT`, emita um ticket e escaneie o QR Code (ou abra o endereço dele) para ver o localizador. O painel fica em `http://localhost:5173/painel`. Para controlar o simulador, informe o token do operador no painel (o `SIMULADOR_TOKEN` do `.env`).
+Se preferir, suba em dois terminais com `pnpm dev:api` e `pnpm dev:web`.
+
+### 4. Usar
+
+1. **Totem:** `http://localhost:5173/totem?acesso=A_ROT`. Escolha o veículo e o tipo de vaga, depois emita o ticket. Também funciona com os acessos `A_NE`, `A_S1` e `A_S2`.
+2. **Localizador:** escaneie o QR Code do ticket com o celular na mesma rede, trocando `localhost` pelo IP do computador em `WEB_URL`, ou abra o endereço `/t/…` no navegador.
+3. **Painel:** `http://localhost:5173/painel`. Para operar tickets e o simulador, informe o token do operador (o `SIMULADOR_TOKEN` do `.env`, por padrão `troque-este-token`).
+4. **Movimento de demonstração:** no painel, em Simulação, clique em "Simular estacionamento tranquilo" ou "Simular horário de pico". "Reiniciar" apaga só os dados simulados.
+
+### Variáveis de ambiente (`apps/api/.env`)
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://parkvision:parkvision@localhost:5433/parkvision` | Banco de desenvolvimento |
+| `DATABASE_URL_TESTE` | `…/parkvision_teste` | Banco dos testes (criado junto com o container) |
+| `PORTA` | `3333` | Porta da API |
+| `WEB_URL` | `http://localhost:5173` | Endereço usado no QR Code do ticket |
+| `SIMULADOR_TOKEN` | `troque-este-token` | Token do operador e do simulador (troque fora da demonstração) |
+| `MODO_DEMONSTRACAO` | `true` | Marca tudo o que o totem e o painel criam como simulado |
 
 ### Testes
 
-Testes unitários e de integração (o banco de teste `parkvision_teste` precisa estar no ar):
+Unitários e de integração (o banco de teste é criado junto com o container):
 
 ```bash
 pnpm test
 ```
 
-Ponta a ponta, com Playwright usando o Edge instalado, no banco de teste:
+Ponta a ponta (Playwright com o Edge; sobe a API e a web em portas próprias, no banco de teste):
 
 ```bash
 pnpm e2e
 ```
+
+### Problemas comuns
+
+- **`/api/saude` responde 503 ou a API não conecta:** o Docker Desktop está fechado ou o container parou. Abra o Docker e rode `pnpm db:up`.
+- **Porta 5433, 3333 ou 5173 ocupada:** feche o outro processo ou mude a porta (`PORTA` no `.env`; o PostgreSQL em `docker-compose.yml`).
+- **O QR Code não abre no celular:** o celular precisa alcançar o computador. Use o IP da máquina em `WEB_URL` e acesse a web por esse IP.
+- **`EPERM … query_engine-windows.dll.node` ao rodar `pnpm demo:preparar` ou `pnpm db:push` (Windows):** a API está rodando e prende o arquivo do Prisma. Pare a API (Ctrl+C no `pnpm demo`) e rode o comando de novo.
+- **Banco de teste inexistente** (volume criado antes): rode `docker exec parkvision-postgres psql -U parkvision -c "CREATE DATABASE parkvision_teste"`.
+
+Documentação técnica completa (arquitetura, API, eventos, algoritmo, dados, testes): [docs/DOCUMENTACAO-TECNICA.md](docs/DOCUMENTACAO-TECNICA.md). Resumo de uma página para os avaliadores: [docs/RESUMO-AVALIADORES.md](docs/RESUMO-AVALIADORES.md).
 
 ## Documentação do MVP
 
