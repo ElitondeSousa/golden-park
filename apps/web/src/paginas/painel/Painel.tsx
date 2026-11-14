@@ -55,6 +55,7 @@ export function Painel() {
   const [movimentacoes, setMovimentacoes] = useState<ItemMovimentacao[]>([]);
   const [selecionada, setSelecionada] = useState<string | null>(null);
   const [mostrarRota, setMostrarRota] = useState(true);
+  const [vistaMapa, setVistaMapa] = useState<'2d' | '3d'>('2d');
   const [erro, setErro] = useState<string | null>(null);
   const [eventoSimulado, setEventoSimulado] = useState(false);
   const [sincronizadoEm, setSincronizadoEm] = useState<Date | null>(null);
@@ -183,11 +184,33 @@ export function Painel() {
               <section id="mapa" tabIndex={-1} aria-labelledby="titulo-mapa" className="scroll-mt-20 focus:outline-none lg:col-start-1 lg:row-start-1 lg:row-span-2">
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-2">
                   <h2 id="titulo-mapa" className="text-xl font-semibold">Mapa do estacionamento</h2>
-                  <label className="inline-flex items-center gap-2 min-h-11 text-sm text-ink-2 cursor-pointer">
-                    <input type="checkbox" checked={mostrarRota} onChange={(e) => setMostrarRota(e.target.checked)} className="size-4 accent-[var(--pv-brand-primary)]" />
-                    Mostrar rota da última recomendação
-                  </label>
+                  {/* 2D = ocupação real do backend; 3D = simulação ilustrativa da maquete (não lê a ocupação real) */}
+                  <div role="tablist" aria-label="Visualização do mapa" className="inline-flex p-1 gap-0.5 rounded-lg border border-line bg-surface">
+                    {([['2d', 'Mapa 2D'], ['3d', 'Simulação 3D']] as const).map(([v, nome]) => (
+                      <button key={v} type="button" role="tab" aria-selected={vistaMapa === v} onClick={() => setVistaMapa(v)}
+                        className="h-11 px-3 rounded-md text-sm cursor-pointer transition-colors"
+                        style={{ background: vistaMapa === v ? 'var(--pv-brand-subtle)' : 'transparent', color: vistaMapa === v ? 'var(--pv-brand-on-subtle)' : 'var(--pv-text-secondary)', fontWeight: vistaMapa === v ? 600 : 500 }}>
+                        {nome}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+                {vistaMapa === '3d' ? (
+                  <div data-testid="simulacao-3d">
+                    <p className="m-0 text-sm text-ink-2">
+                      Simulação 3D ilustrativa da maquete do estacionamento: a movimentação é gerada no próprio navegador e <strong className="text-ink">não usa a ocupação real</strong> mostrada no mapa 2D.
+                      Posições dos subsolos, rampas e capacidades contadas no desenho são aproximadas.{' '}
+                      <a href="/simulacao-3d/index.html" target="_blank" rel="noopener" className="font-medium underline underline-offset-2" style={{ color: 'var(--pv-text-link)' }}>Abrir em tela cheia</a>
+                    </p>
+                    <iframe src="/simulacao-3d/index.html" title="Simulação 3D do estacionamento (ilustrativa)" loading="lazy"
+                      className="mt-3 block w-full rounded-lg border border-line" style={{ height: 'min(72vh, 640px)', background: 'var(--pv-color-asfalto-950)' }} />
+                  </div>
+                ) : (
+                <>
+                <label className="inline-flex items-center gap-2 min-h-11 text-sm text-ink-2 cursor-pointer">
+                  <input type="checkbox" checked={mostrarRota} onChange={(e) => setMostrarRota(e.target.checked)} className="size-4 accent-[var(--pv-brand-primary)]" />
+                  Mostrar rota da última recomendação
+                </label>
                 <RecomendacaoAtual dados={recomendacao} aoSelecionar={setSelecionada} />
                 {regioes ? (
                   <MapaEstacionamento
@@ -204,6 +227,8 @@ export function Painel() {
                     veiculos={veiculos}
                   />
                 ) : !erro && <Esqueleto className="mt-3 w-full aspect-[1645/1331] rounded-lg" />}
+                </>
+                )}
               </section>
 
               <DetalheRegiao className="lg:col-start-2 lg:row-start-2 lg:self-start" regiao={regiaoSelecionada} aoFechar={() => setSelecionada(null)} />

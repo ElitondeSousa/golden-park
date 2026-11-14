@@ -190,6 +190,19 @@ describe('dashboard administrativo', () => {
     expect(screen.getByTestId('mapa-estacionamento').querySelector('[data-testid="veiculo-simulado"]')).toBeNull();
   });
 
+  it('mapa: alterna para a simulação 3D ilustrativa sem perder o mapa 2D com dados reais', async () => {
+    api();
+    await abrir();
+    expect(screen.getByRole('tab', { name: 'Mapa 2D' })).toHaveAttribute('aria-selected', 'true');
+    fireEvent.click(screen.getByRole('tab', { name: 'Simulação 3D' }));
+    const sim = screen.getByTestId('simulacao-3d');
+    expect(sim).toHaveTextContent('não usa a ocupação real');
+    expect(sim.querySelector('iframe')).toHaveAttribute('src', '/simulacao-3d/index.html');
+    expect(screen.queryByTestId('mapa-estacionamento')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Mapa 2D' }));
+    expect(screen.getByTestId('mapa-estacionamento')).toBeInTheDocument();
+  });
+
   it('trata falha de conexão com a API e com o tempo real', async () => {
     simularApi({});
     renderizarEm('/painel', '/painel', <Painel />);
