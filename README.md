@@ -27,13 +27,18 @@ Sistema que **organiza e distribui automaticamente os veículos** no estacioname
 
 Telas do cliente (QR Code), da administração e do totem, com a simulação 3D interativa. É uma vitrine estática; o MVP completo roda localmente com a API e o banco.
 
+### 🎬 [Pitch em vídeo (pasta no Google Drive)](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link)
+
+Vídeo de apresentação do Golden Park e os arquivos do pitch.
+
 > **Para avaliar:**
 > - [INSTRUCOES-DE-EXECUCAO.md](INSTRUCOES-DE-EXECUCAO.md): passo a passo verificável, validado numa instalação limpa;
 > - [ROTEIRO-DEMONSTRACAO.md](ROTEIRO-DEMONSTRACAO.md): demonstração de 3 a 5 minutos;
 > - [docs/DOCUMENTACAO-TECNICA.md](docs/DOCUMENTACAO-TECNICA.md): arquitetura, API, algoritmo e dados;
 > - [docs/RESUMO-AVALIADORES.pdf](docs/RESUMO-AVALIADORES.pdf): resumo de uma página;
 > - [CHECKLIST-ENTREGA.md](CHECKLIST-ENTREGA.md) e [RELATORIO-FINAL-ENTREGA.md](RELATORIO-FINAL-ENTREGA.md): o que foi conferido e o estado final;
-> - [vitrine online](https://golden-park-weld.vercel.app): telas estáticas para ver sem instalar nada.
+> - [vitrine online](https://golden-park-weld.vercel.app): telas estáticas para ver sem instalar nada;
+> - [pitch em vídeo](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link): pasta do Google Drive com o vídeo e os arquivos da apresentação.
 
 ## Problema e público-alvo
 
