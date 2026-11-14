@@ -4,8 +4,6 @@
 
 # Golden Park — Sistema inteligente de estacionamento
 
-> O projeto se chamava **ParkVision** até a atualização de identidade visual; documentos das etapas anteriores mantêm o nome antigo como registro histórico. Identificadores técnicos (pacotes `@parkvision/*`, tokens `--pv-*`, URL do repositório) foram preservados por compatibilidade. Identidade, logos e temas: [docs/mvp/14-golden-park.md](docs/mvp/14-golden-park.md).
-
 Sistema que **organiza e distribui automaticamente os veículos** no estacionamento do Capim Dourado Shopping:
 - recomenda a melhor região na entrada;
 - emite um ticket com QR Code;
