@@ -9,7 +9,7 @@ O Golden Park distribui automaticamente os veículos no estacionamento do Capim 
 1. Na entrada, o **totem** pergunta o tipo de veículo e, se necessário, a vaga reservada (PcD ou pessoa idosa).
 2. O **algoritmo** escolhe a melhor região naquele momento e explica o motivo.
 3. O motorista recebe um **ticket com QR Code**.
-4. Ao escanear o QR Code, o celular abre o **localizador**: mapa com a rota pelos corredores até a região, sem instalar aplicativo.
+4. Ao escanear o QR Code, o celular abre o **localizador**: mapa 3D com a rota em setas pelas vias até a região, sem instalar aplicativo.
 5. Depois de estacionar, o mesmo QR Code mostra onde o carro ficou.
 6. A operação acompanha tudo no **painel administrativo**, em tempo real.
 
@@ -20,7 +20,7 @@ Regra central: **recomendar não é reservar.** A ocupação de uma região só 
 ```
                 ┌───────────────────────────── apps/web (React + Vite) ─────────────────────────────┐
                 │  Totem /totem         Localizador /t/:token         Painel /painel                │
-                │        └──────────── MapaEstacionamento (SVG, planta real) ───────────┘           │
+                │  Localizador: mapa 3D (three.js) ou 2D (SVG)        Painel: mapa SVG + Simulação 3D│
                 └───────────────▲───────────── REST (/api) ─────────────▲── Socket.IO ──────────────┘
                                 │                                       │
                 ┌───────────────┴──────────── apps/api (Fastify) ───────┴───────────────────────────┐
@@ -36,7 +36,7 @@ Regra central: **recomendar não é reservar.** A ocupação de uma região só 
 | `packages/shared` | Contratos usados por todos: tipos de domínio, esquemas de validação (Zod), eventos em tempo real e o **mapa digital oficial** (regiões, capacidades, acessos e grafo de vias extraídos da planta). |
 | `packages/core` | **Funções puras**, sem banco: algoritmo de recomendação, menor caminho (Dijkstra) e proposta de distribuição das vagas reservadas. |
 | `apps/api` | API Fastify 5, Socket.IO, Prisma/PostgreSQL e o simulador embutido. É a única fonte da verdade da ocupação. |
-| `apps/web` | As três interfaces em React 19 e o mapa em SVG próprio. Os estilos vêm dos tokens do Design System. |
+| `apps/web` | As três interfaces em React 19. O localizador desenha o mapa em 3D com three.js a partir do mapa digital (carregado só nessa página) e usa o mapa SVG próprio quando o aparelho não tem WebGL; o painel usa o mapa SVG. Os estilos vêm dos tokens do Design System. |
 | `design-system` | Tokens em 3 camadas (primitivos → semânticos → componentes) com tema claro e escuro, logos e scripts de build e de contraste. |
 
 ## 3. Tecnologias
@@ -46,7 +46,7 @@ Regra central: **recomendar não é reservar.** A ocupação de uma região só 
 | Linguagem | TypeScript (Node.js 24) |
 | Back-end | Fastify 5, Socket.IO 4, Prisma 6, Zod 4 |
 | Banco | PostgreSQL 16 em Docker Compose |
-| Front-end | React 19, Vite, React Router, Tailwind 4 (ligado aos tokens `--pv-*`), Lucide, `qrcode` |
+| Front-end | React 19, Vite, React Router, Tailwind 4 (ligado aos tokens `--pv-*`), Lucide, `qrcode`, three.js (mapa 3D do localizador) |
 | Testes | Vitest, Testing Library, Playwright (Edge) |
 | Monorepo | pnpm workspaces |
 | Design System | W3C Design Tokens (JSON) → CSS gerado; verificação automática de contraste (WCAG AA) |
@@ -104,7 +104,7 @@ Cada mudança ──Socket.IO──▶ painel (/painel) e o localizador daquele 
 
 ## 7. API REST
 
-Sem autenticação: leitura pública, totem e localizador. Com o cabeçalho `x-operador-token`: operação e simulador.
+Sem autenticação: leitura pública, totem e localizador. Com o cabeçalho `x-operador-token` (ou `x-simulador-token`): operação e simulador.
 
 | Método | Rota | Uso |
 |---|---|---|
@@ -157,8 +157,8 @@ Roda dentro da API e usa **os mesmos serviços** dos dados reais, então valem a
 | Tela | Destaques |
 |---|---|
 | **Totem** | Uma ação por etapa, botões grandes, progresso "Etapa X de 4", recomendação com o código da zona em destaque, motivo, passos, aviso de que não reserva vaga, ticket com QR Code real. |
-| **Localizador** | Mapa em tela cheia (pinça, arrastar, centralizar, ver rota inteira), painel inferior expansível, estados a caminho / estacionado / saiu / inválido / sem conexão. Sem GPS e sem distâncias inventadas. |
-| **Painel** | Navegação horizontal, vagas livres em destaque, mapa com ocupação e rota, tabela de zonas (comuns, PcD, pessoa idosa), operação de tickets, simulador e vagas reservadas, tudo em tempo real. |
+| **Localizador** | Mapa 3D em tela cheia no estilo de app de mobilidade: rota com setas animadas até a região, troca de nível, arrastar, girar e aproximar com os dedos, centralizar e ver rota inteira. Sem WebGL, mostra o mapa 2D. Painel inferior expansível, estados a caminho / estacionado / saiu / inválido / sem conexão. Sem GPS e sem distâncias inventadas. |
+| **Painel** | Navegação horizontal, vagas livres em destaque, mapa com ocupação e rota (e a aba **Simulação 3D**, ilustrativa), tabela de zonas (comuns, PcD, pessoa idosa), operação de tickets, simulador e vagas reservadas, tudo em tempo real. |
 
 Identidade e acessibilidade nas três telas:
 - **Cores e temas:** bronze como cor de ação; temas claro e escuro com a preferência salva.
@@ -172,7 +172,7 @@ Identidade e acessibilidade nas três telas:
 | `packages/shared` | Integridade do mapa digital | 4 testes |
 | `packages/core` | Algoritmo, empates, rotas, vagas reservadas | 106 testes |
 | `apps/api` (banco de teste) | Regras, concorrência, tempo real, simulador, vagas reservadas | 71 testes |
-| `apps/web` | Componentes, mapa, gestos, telas | 94 testes |
+| `apps/web` | Componentes, mapa, gestos, telas, troca 2D/3D | 96 testes |
 | Playwright (Edge) | Fluxos completos, integração, celular, temas, responsividade em 6 larguras | 49 testes |
 
 ## 12. Segurança e privacidade
@@ -187,4 +187,5 @@ Identidade e acessibilidade nas três telas:
 - **Sensores, LED e pagamento:** sensores físicos ainda não foram integrados (os eventos de sensor são simulados), e não há painéis de LED nem pagamento.
 - **Planta e grafo:** as capacidades do térreo foram contadas no desenho e precisam de confirmação. O grafo de vias é simplificado.
 - **Vagas reservadas:** a posição física e os caminhos a pé são uma proposta simulada até a validação em campo.
+- **Mapa 3D:** o do localizador precisa de WebGL (sem ele, aparece o mapa 2D) e funciona sem internet; o volume dos prédios é ilustrativo. A Simulação 3D do painel é ilustrativa, não usa a ocupação real e baixa o three.js da internet.
 - **Testes:** só foram feitos no navegador Edge (Chromium).

@@ -50,9 +50,9 @@ Diga: "Em dia de movimento, o motorista roda pelo estacionamento procurando vaga
 
 1. Escaneie o QR Code, ou abra o link `/t/…`.
 2. Mostre:
-   - o mapa da planta real em tela cheia;
-   - a rota destacada pelos corredores até a região, com o pino de destino;
-   - zoom com pinça e arrastar.
+   - o mapa 3D em tela cheia, montado a partir da planta real;
+   - a rota com setas animadas pelas vias até a região, com o pino de destino;
+   - arrastar com um dedo, girar e aproximar com dois, e "Ver rota inteira" para voltar ao enquadramento.
 3. Toque em "Mostrar detalhes": aparecem os passos, os dados do ticket e o tipo de vaga.
 4. Diga: "Não é GPS. A página mostra a região indicada e o caminho pelas vias do estacionamento."
 
@@ -78,7 +78,8 @@ Diga: "Em dia de movimento, o motorista roda pelo estacionamento procurando vaga
 2. Mostre:
    - os carrinhos percorrendo as vias no mapa;
    - os indicadores e a tabela atualizando, com vagas comuns, PcD e pessoa idosa;
-   - o selo "Ambiente de demonstração · dados simulados".
+   - o selo "Ambiente de demonstração · dados simulados";
+   - opcional: no mapa do painel, a aba "Simulação 3D" mostra a maquete do estacionamento (ilustrativa, precisa de internet).
 3. Diga: "O simulador passa pelas mesmas regras do sistema real. A ocupação só muda na confirmação e na saída, e nunca passa da capacidade."
 
 ### 7. Fechamento (4:30–5:00)

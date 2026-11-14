@@ -20,8 +20,8 @@ Nenhum problema bloqueador (P0) ou crítico (P1) foi encontrado. Nesta etapa nã
 | P1 | Nenhum | — |
 | P2 | No Windows, `pnpm demo:preparar` / `db:push` falha com `EPERM … query_engine` se a API estiver rodando (o Prisma não regrava o arquivo em uso) | Documentado em "Problemas comuns" (parar a API e repetir). Não ocorre na instalação limpa. |
 | P2 | O nome fixo do container (`parkvision-postgres`) impede duas cópias do projeto com o banco no ar ao mesmo tempo | Documentado ("container name already in use" → `pnpm db:down` na outra cópia) |
-| P2 | Abrir o QR Code num celular de verdade exige `WEB_URL` com o IP do computador | Documentado no passo 9.1 das instruções e no roteiro |
-| P2 | O build de produção avisa que um pacote JS passa de 500 kB | Só aviso, sem efeito na demonstração. Não foi corrigido. |
+| P2 | Abrir o QR Code num celular de verdade exigia `WEB_URL` com o IP do computador | **Corrigido** depois da auditoria (seção 2.2): o QR usa o endereço por onde o totem foi aberto |
+| P2 | O build de produção avisa que um pacote JS passa de 500 kB | Só aviso, sem efeito na demonstração. O mapa 3D fica num pacote separado, carregado só no localizador. |
 | P2 | Os testes ponta a ponta dependem do Microsoft Edge instalado | Documentado nos pré-requisitos (opcional) |
 
 ## 2.1. Adição pedida pela equipe depois da auditoria
@@ -32,6 +32,16 @@ Nenhum problema bloqueador (P0) ou crítico (P1) foi encontrado. Nesta etapa nã
 - **Impacto:** não mexe na API, no algoritmo nem no mapa 2D, que continua sendo a visão padrão.
 - **Verificação:** a cena carregou no navegador; há um teste unitário novo da troca 2D/3D (web 95/95); typecheck limpo; 19 testes e2e do painel passando.
 - **Limitação:** precisa de internet, porque o Three.js é baixado de CDN com versão fixa (0.160.0).
+
+## 2.2. Ajustes posteriores (mesmo dia, depois da auditoria)
+
+Todos enviados ao GitHub, com typecheck e testes passando depois de cada um:
+
+- **Vitrine online na Vercel** (https://golden-park-weld.vercel.app): telas estáticas do cliente, da administração e do totem, com a simulação 3D. Pasta `vitrine/`.
+- **Protótipo da 1ª entrega** restaurado ao design planejado (dourado e creme); o build de tokens não o sobrescreve mais.
+- **QR Code no celular:** a web aceita conexões da rede local e o totem gera o QR com o endereço por onde foi aberto, sem editar o `.env`.
+- **Mapa 3D no localizador:** a página do QR mostra o estacionamento em 3D (three.js), com a rota em setas animadas, troca de nível e gestos de arrastar, girar e aproximar. Sem WebGL, volta para o mapa 2D. Os testes e2e cobrem o modo 3D e os unitários, o 2D. Testes: shared 4, core 106, api 71, web 96; Playwright 49 passando.
+- **README e documentos** revistos, com as capturas do mapa 3D, a vitrine e o link da pasta do pitch em vídeo.
 
 ## 3. Funcionalidades confirmadas
 
@@ -47,7 +57,7 @@ Confirmado na instalação limpa, salvo indicação:
   - operação sem token responde 401;
   - vagas comuns, PcD e pessoa idosa, compatibilidade por veículo e estacionamento lotado estão cobertos pelos testes de core e API.
 - **QR Code e mapa:**
-  - a página abre com mapa, rota pelo grafo de vias e pino de destino;
+  - a página abre com mapa, rota pelo grafo de vias e pino de destino (hoje em 3D, seção 2.2);
   - nenhum texto fala em GPS;
   - depois da saída, a página mudou sozinha para "Este veículo já saiu".
 - **Painel:** ocupação total, disponibilidade por região e por tipo, mapa, tempo real, operação de tickets e controles do simulador (testes e2e e de componente).
@@ -144,7 +154,7 @@ As limitações (simulação, sem hardware, testes só em Windows e Edge) estão
 
 ## 10. Ações que dependem da equipe
 
-1. **Aprovar e enviar (push)** os documentos desta etapa. Até lá, o GitHub não tem as instruções, o roteiro, o checklist e este relatório.
+1. Compartilhar a [pasta do pitch em vídeo](https://drive.google.com/drive/folders/1As2GhpaemcnAX9MI47cfdmz8J1NMfw98?usp=drive_link) como "Qualquer pessoa com o link". Hoje ela pede login.
 2. Conferir o repositório numa aba anônima.
 3. Submeter até 12h: link do repositório, vídeo de 90 s (feito pela equipe) e `docs/RESUMO-AVALIADORES.pdf`.
 4. Ensaiar a demonstração com o [roteiro](ROTEIRO-DEMONSTRACAO.md) no computador do pitch.

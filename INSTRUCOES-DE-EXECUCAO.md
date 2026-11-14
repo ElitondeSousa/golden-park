@@ -118,7 +118,7 @@ pnpm dev:web
 2. Clique em "Emitir ticket".
    ✔ Aparece o ticket (ex.: `PV-0001`) com o QR Code.
 3. **Localizador:** abra o endereço do QR Code. No celular, veja o passo 9.1 abaixo.
-   ✔ Aparece o mapa com a rota até a região e o painel inferior "Estacionamento ainda não confirmado".
+   ✔ Aparece o mapa 3D com a rota em setas até a região e o painel inferior "Estacionamento ainda não confirmado".
 4. **Painel:** informe o token do operador e clique em "Salvar". Clique em "Consultar ticket", digite o código e clique em "Consultar". Depois clique em "Confirmar estacionamento".
    ✔ A ocupação da região sobe 1 na tabela e no mapa, sem recarregar. O localizador muda sozinho para "Encontre seu veículo".
 5. Clique em "Registrar saída".
@@ -159,7 +159,7 @@ Unitários e de integração (com o banco no ar):
 pnpm test
 ```
 
-✔ 4 + 106 + 71 + 95 testes passando.
+✔ 4 + 106 + 71 + 96 testes passando.
 
 Ponta a ponta (Playwright com o Edge do sistema; sobe API e web próprias nas portas 3334 e 5174, no banco de teste):
 

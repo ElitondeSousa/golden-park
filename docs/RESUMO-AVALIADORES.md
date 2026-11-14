@@ -2,6 +2,7 @@
 
 **Equipe:** Eliton de Sousa Pereira · Marcos Feliphe Freitas Moraes · Gustavo Araújo Lopes · Arthur Santos Coelho
 **Repositório:** https://github.com/ElitondeSousa/golden-park
+**Vitrine:** https://golden-park-weld.vercel.app · **Pitch em vídeo:** link no README do repositório
 
 **1. Nome do projeto.** Golden Park — sistema inteligente de distribuição de veículos no estacionamento.
 
@@ -20,13 +21,13 @@
 
 **5. Descrição do produto (MVP).** Três telas integradas, funcionando de verdade:
 - **Totem de entrada:** o motorista escolhe o veículo e, se precisar, vaga PcD ou para pessoa idosa. Recebe a região recomendada, o motivo e o caminho, e retira o ticket com QR Code.
-- **Página do QR Code:** mapa no celular com a rota pelos corredores até a região. Depois de estacionar, mostra onde o carro ficou.
+- **Página do QR Code:** mapa 3D no celular, no estilo de app de mobilidade, com a rota em setas até a região. Depois de estacionar, mostra onde o carro ficou.
 - **Painel da operação:** vagas livres, mapa com a ocupação de cada região, tabela de zonas (comuns, PcD, pessoa idosa), tickets e simulador. Atualiza em tempo real.
 - **Mapa digital:** feito a partir da planta real do shopping (3 níveis, 10 regiões, 1.269 vagas).
 - **Simulador:** gera movimento realista para demonstração, com os dados sempre identificados como simulados.
 
 **6. Tecnologias utilizadas.**
-- TypeScript, React, Node.js (Fastify), Socket.IO (tempo real), PostgreSQL com Prisma e Docker.
+- TypeScript, React, three.js (mapa 3D), Node.js (Fastify), Socket.IO (tempo real), PostgreSQL com Prisma e Docker.
 - Design System próprio com temas claro e escuro.
 - Testes automatizados com Vitest e Playwright (mais de 300 testes).
 
